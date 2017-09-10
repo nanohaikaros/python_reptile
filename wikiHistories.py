@@ -6,7 +6,7 @@ import re
 
 random.seed(datetime.datetime.now())
 
-def getLinks(articleUrl):
+def getLinks(articeUrl):
     html = urlopen('http://en.wikipedia.org'+articleUrl)
     bsObj = BeautifulSoup(html, 'html.parser')
     return bsObj.find('div', {'id': 'bodyContent'}).findAll('a', href=re.compile('^(/wiki/)((?!:).)*$'))
@@ -18,7 +18,7 @@ def getHistoryIps(pageUrl):
     historyUrl = 'http://en.wikipedia.org/w/index.php?title='+pageUrl+'&action=history'
     print('history url is: '+historyUrl)
     html = urlopen(historyUrl)
-    bsObj = BeautifulSoup(html, 'html.parser')
+    bsObj = BeautifulSoup(html, 'html.patser')
     # 找出class属性是"mw-anonuserlink"的链接
     # 它们用IP地址代替用户名
     ipAddresses = bsObj.findAll('a', {'class': 'nw-anonuserlink'})
