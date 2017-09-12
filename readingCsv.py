@@ -7,4 +7,4 @@ dataFile = StringIO(data)
 csvReader = csv.reader(dataFile)
 
 for row in csvReader:
-    print(row)
+    print('The album "'+row[0]+'" was released in '+str(row[1]))
