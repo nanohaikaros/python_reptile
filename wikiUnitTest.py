@@ -1,23 +1,52 @@
 from urllib.request import urlopen
+from urllib.parse import unquote
+import random
+import re
 from bs4 import BeautifulSoup
 import unittest
 
 class TestWikipedia(unittest.TestCase):
+    
     bsObj = None
-    def setUpClass():
-        global bsObj
-        url = 'http://en.wikipedia.org/wiki/Monty_Python'
-        bsObj = BeautifulSoup(urlopen(url))
+    url = None
+ 
 
-    def test_titleText(self):
+    def test_PageProperties(self):
         global bsObj
-        pageTitle = bsObj.find('h1').get_text()
-        self.assertEqual('Monty Python', pageTitle)
+        global url
 
-    def test_contentExists(self):
+        url = "http://en.wikipedia.org/wiki/Monty_Python"
+        # 测试遇到的前100个页面
+        for i in range(1, 100):
+            bsObj = BeautifulSoup(urlopen(url))
+            titles = self.titleMatchesURL()
+            self.assertEquals(titles[0], titles[1])
+            self.assertTrue(self.contentExists())
+            url = self.getNextLink()
+        print("Done!")
+
+    def titleMatchesURL(self):
         global bsObj
-        content = bsObj.find('div', {'id': 'mw-content-text'})
-        self.assertIsNotNone(content)
+        global url
+        pageTitle = bsObj.find("h1").get_text()
+        urlTitle = url[(url.index("/wiki/")+6):]
+        urlTitle = urlTitle.replace("_", " ")
+        urlTitle = unquote(urlTitle)
+        return [pageTitle.lower(), urlTitle.lower()]
+
+    def contentExists(self):
+        global bsObj
+        content = bsObj.find("div",{"id":"mw-content-text"})
+        if content is not None:
+            return True
+        return False
+
+    def getNextLink(self):
+        global bsObj
+        links = bsObj.find("div", {"id":"bodyContent"}).findAll("a", href=re.compile("^(/wiki/)((?!:).)*$"))
+        link = links[random.randint(0, len(links)-1)].attrs['href']
+        print("Next link is: "+link)
+        return "http://en.wikipedia.org"+link
 
 if __name__ == '__main__':
     unittest.main()
